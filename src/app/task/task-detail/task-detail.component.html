@@ -1,0 +1,19 @@
+<h1 [innerHTML]="title"></h1>
+<div class="example-container">
+  <mat-form-field>
+    <mat-label>Name</mat-label>
+    <input matInput [(ngModel)]="data.name">
+  </mat-form-field>
+  <br>
+  <mat-form-field>
+    <mat-label>Description</mat-label>
+    <input matInput [(ngModel)]="data.description">
+  </mat-form-field>
+  <br>
+  <button mat-raised-button (click)="save()" *ngIf="data.id;else noId">Save</button>
+
+</div>
+
+<ng-template #noId>
+  <button mat-raised-button (click)="add()">Add</button>
+</ng-template>

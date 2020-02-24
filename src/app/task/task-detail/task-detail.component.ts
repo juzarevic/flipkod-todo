@@ -2,7 +2,6 @@ import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA} from '@angular/material/dialog';
 import {TaskInterface} from '../task.interface';
 import {TaskService} from '../task.service';
-import {nextTick} from 'q';
 import {MatSnackBar} from '@angular/material/snack-bar';
 
 @Component({

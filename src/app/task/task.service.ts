@@ -18,6 +18,11 @@ export class TaskService {
       name: 'Platiti račune',
       description: 'Trebalo bi platiti makar struju.',
       created: new Date(2020, 2, 15, 12, 34, 56),
+    }, {
+      id: 3,
+      name: 'Treći task',
+      description: 'Kako bismo mogli imati tri taska.',
+      created: new Date(2020, 2, 22, 13, 14, 15),
     },
   ];
 
@@ -48,5 +53,11 @@ export class TaskService {
     const index = this.tasks.findIndex(obj => obj.id === entry.id);
     this.tasks[index] = {...entry};
     return of(this.tasks[index]);
+  }
+
+  delete$(entry: TaskInterface): Observable<TaskInterface> {
+    const index = this.tasks.findIndex(obj => obj.id === entry.id);
+    this.tasks.splice(index, 1);
+    return this.emptyModel$();
   }
 }

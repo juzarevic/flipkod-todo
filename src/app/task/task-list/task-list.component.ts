@@ -6,6 +6,8 @@ import {TaskInterface} from '../task.interface';
 import {TaskService} from '../task.service';
 import {TaskDetailComponent} from '../task-detail/task-detail.component';
 import {MatDialog} from '@angular/material/dialog';
+import {SelectionModel} from '@angular/cdk/collections';
+import {TaskDeleteComponent} from '../task-delete/task-delete.component';
 
 @Component({
   selector: 'app-task-list',
@@ -13,21 +15,38 @@ import {MatDialog} from '@angular/material/dialog';
   styleUrls: ['./task-list.component.scss']
 })
 export class TaskListComponent implements AfterViewInit, OnInit {
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-  @ViewChild(MatSort) sort: MatSort;
-  @ViewChild(MatTable) table: MatTable<TaskInterface>;
-  dataSource: MatTableDataSource<TaskInterface>;
-
-  selectedTask: TaskInterface;
-
-  /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
-  displayedColumns = ['id', 'name', 'description', 'created'];
 
   constructor(
     private taskService: TaskService,
     public dialog: MatDialog
   ) {
     this.taskService.emptyModel$().subscribe(next => this.selectedTask = next);
+  }
+
+  @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild(MatSort) sort: MatSort;
+  @ViewChild(MatTable) table: MatTable<TaskInterface>;
+  dataSource: MatTableDataSource<TaskInterface>;
+
+  selection = new SelectionModel<TaskInterface>(true, []);
+
+
+  selectedTask: TaskInterface;
+
+  displayedColumns = ['select', 'id', 'name', 'description', 'created'];
+
+  get isAllSelected() {
+    return this.lengthSelected === this.dataSource.data.length;
+  }
+
+  get lengthSelected() {
+    return this.selection.selected.length;
+  }
+
+  masterToggle() {
+    this.isAllSelected ?
+      this.selection.clear() :
+      this.dataSource.data.forEach(row => this.selection.select(row));
   }
 
   ngOnInit() {
@@ -51,9 +70,27 @@ export class TaskListComponent implements AfterViewInit, OnInit {
       data: {...this.selectedTask}
     });
 
-    dialogRef.afterClosed().subscribe(result => {
-      this.dataSource.data = this.dataSource.data;
-      this.taskService.emptyModel$().subscribe(next => this.selectedTask = next);
+    dialogRef.afterClosed().subscribe(() => {
+      this.resetAndRefreshTable();
     });
+  }
+
+  openTaskDeleteDialog() {
+    const dialogRef = this.dialog.open(TaskDeleteComponent, {
+      width: '400px',
+      data: [...this.selection.selected]
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.selection.clear();
+      }
+      this.resetAndRefreshTable();
+    });
+  }
+
+  private resetAndRefreshTable() {
+    this.dataSource.data = this.dataSource.data;
+    this.taskService.emptyModel$().subscribe(next => this.selectedTask = next);
   }
 }
